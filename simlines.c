@@ -21,6 +21,8 @@ void store_line(char *clean_line, Table_T library, int counter, char *file);
 void store_atom(const char *atom, Table_T library, struct Line *line_info);
 void print_output(Table_T library);
 void printer(const void *key, void **value, void *cl);
+void free_table(Table_T library);
+void freer(const void *key, void **value, void *cl);
 
 
 /* Purpose : Main driver function for simlines implementation
@@ -33,6 +35,7 @@ int main(int argc, char *argv[]) {
         Table_T library = Table_new(0, NULL, NULL);
         process_file(argc, argv, library);
         print_output(library);
+        free_table(library);
         return 0;
 }
 
@@ -94,28 +97,24 @@ void process_line(FILE *inputfd, Table_T library, int counter, char *file){
  */
 char* clean_lines(char *og_line, size_t line_size, int *clean_len){
 
+        char *clean_line = (char *) malloc(line_size + 1);
+
+        int prev_char_valid = 0;
+
         for (size_t i = 0; i < line_size; i++) {
-                // printf("char in question: %c\n", og_line[i]);
                 if (valid_char(og_line[i])) {
+                        clean_line[*clean_len] = og_line[i];
                         (*clean_len)++;
-                }
+                        prev_char_valid = 1;
+                } 
+                else if (prev_char_valid == 1) {
+                        clean_line[*clean_len] = ' ';
+                        (*clean_len)++;
+                        prev_char_valid = 0;
+                }   
         }
-        printf("clean length: %d\n", *clean_len);
-        char *clean_line = (char *) malloc(*clean_len + 1);
-        // WHATS UP: random letters at end of clean line, even after mallocing
-        // specific amount of space
-        // memset(clean_line, ' ', *clean_len);
-        // clean_line[sizeof(int)*line_size)] = { " " };
-        // printf("new clean line: %d\n",(int)*clean_line );
-        int j = 0;
-        assert(clean_line != NULL);
-        for (size_t i = 0; i < line_size; i++) {
-                if (valid_char(og_line[i])) {
-                        clean_line[j] = og_line[i];
-                        j++;
-                }
-        }
-        clean_line[*clean_len] = '\0';
+        
+        clean_line[(*clean_len)] = '\0';
         return clean_line;
 }
 
@@ -130,10 +129,8 @@ bool valid_char(char c){
 }
 
 void store_line(char *clean_line, Table_T library, int counter, char *file){
-        // is this how we save atom itself?
-        // printf("%s---------------------\n", clean_line);
+
         const char *a = Atom_string(clean_line);
-        // (void)a;
         struct Line *line_info = (struct Line *) malloc(sizeof(struct Line));
         assert(line_info != NULL);
         line_info->line_num = counter;
@@ -144,8 +141,6 @@ void store_line(char *clean_line, Table_T library, int counter, char *file){
 void store_atom(const char *atom, Table_T library, struct Line *line_info){
         List_T curr_list = Table_get(library, atom);
         if (curr_list == NULL) {
-                // whats up here: our prog thinks that keys/values that should exist
-                // dont. even when recognized, does not push
                 List_T list = List_push(NULL, line_info);
                 Table_put(library, atom, list);
         }
@@ -153,37 +148,54 @@ void store_atom(const char *atom, Table_T library, struct Line *line_info){
                 curr_list = List_push(curr_list, line_info);
                 Table_put(library, atom, curr_list);
         }
-
-        // not recognizing cleaned duplicates, ones that it does rexognize,
-        // length of list isnt incremented
 }
 
 void print_output(Table_T library){
-        printf("before map\n");
-        Table_map(library, printer, NULL);
+        int first = 1;
+        Table_map(library, printer, &first);
 }
 
 void printer(const void *key, void **value, void *cl){
-        printf("in map\n");
-        (void)cl;
-        printf("%s\n", (char *)key);
+
+        int *first = cl;
         List_T temp_list = *value;
         temp_list = List_reverse(temp_list);
-
+     
         struct Line *x;
-        printf("list len 1: %d\n",List_length(temp_list));
-        while (List_length(temp_list) > 0) {
-                temp_list = List_pop(temp_list, (void **)&x);
-                printf("line num: %d\n",x->line_num);
-                printf("file num: %s\n",x->file_name);
-
-                printf("list len 2: %d\n",List_length(temp_list));
+        if (List_length(temp_list) > 1)
+        {    
+                if (*first == 1){
+                        *first = 0;
+                }
+                else {
+                        printf("\n");
+                }
+                printf("%s\n", (char *)key);
+                while (List_length(temp_list) > 0) {
+                        temp_list = List_pop(temp_list, (void **)&x);
+                        size_t fnl = strlen(x->file_name);
+                        if (fnl < 20)
+                        {
+                                size_t num_spaces = 20 - fnl;
+                                printf("%s", x->file_name);
+                                for (size_t i = 0; i < num_spaces; ++i)
+                                {
+                                        printf(" ");
+                                }
+                                printf(" %d\n", x->line_num);
+                        }
+                        else if (fnl >= 20){
+                                printf("%s %d\n", x->file_name, x->line_num);
+                        }
+                        
+                }
         }
-        // for (int i = 0; i < List_length(temp_list); i++) {
-        //         List_pop(temp_list, (void **)&x);
-        //         if (temp_list != NULL) {
-        //                 printf("line num: %d\n",x->line_num);
-        //                 printf("file num: %s\n",x->file_name);
-        //         }
-        // }
+}
+
+void free_table(Table_T library){
+        Table_map(library, freer, NULL);
+}
+
+void freer(const void *key, void **value, void *cl){
+
 }
