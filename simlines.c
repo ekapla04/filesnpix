@@ -106,18 +106,23 @@ char* clean_lines(char *og_line, size_t line_size, int *clean_len){
                         clean_line[*clean_len] = og_line[i];
                         (*clean_len)++;
                         prev_char_valid = 1;
-                } 
+                }
                 else if (prev_char_valid == 1) {
                         clean_line[*clean_len] = ' ';
                         (*clean_len)++;
                         prev_char_valid = 0;
-                }   
+                }
         }
-        
+
         clean_line[(*clean_len)] = '\0';
         return clean_line;
 }
 
+/* Purpose : Checks if character is a word-character or not
+ * Arguments : Character from line
+ * Returns : Boolean true if character is word char, false otherwise
+ * Notes : None
+ */
 bool valid_char(char c){
         if ((c >= '0' && c <= '9') ||
             (c >= 'a' && c <= 'z') ||
@@ -128,8 +133,15 @@ bool valid_char(char c){
         return false;
 }
 
+/* Purpose : Stores "cleaned" line in a Hanson Atom which is then stored
+ *           in a Hanson Table.
+ * Arguments : Clean line, Table that will hold all atoms, line number in
+ *             file, and filename
+ * Returns : Nothing
+ * Notes : The struct Line holds information about where the line is found.
+ *         Allocates space in memory to hold this information.
+ */
 void store_line(char *clean_line, Table_T library, int counter, char *file){
-
         const char *a = Atom_string(clean_line);
         struct Line *line_info = (struct Line *) malloc(sizeof(struct Line));
         assert(line_info != NULL);
@@ -138,6 +150,13 @@ void store_line(char *clean_line, Table_T library, int counter, char *file){
         store_atom(a, library, line_info);
 }
 
+/* Purpose : Stores an Atom in a Hanson Table with its associated List of
+ *           Line structs.
+ * Arguments : an Atom, a Table, and a pointer to a Line struct
+ * Returns : Nothing
+ * Notes : If no list is yet associated with an atom, it is created, otherwise
+ *         the Line struct is merely appended to the existing list
+ */
 void store_atom(const char *atom, Table_T library, struct Line *line_info){
         List_T curr_list = Table_get(library, atom);
         if (curr_list == NULL) {
@@ -150,20 +169,34 @@ void store_atom(const char *atom, Table_T library, struct Line *line_info){
         }
 }
 
+/* Purpose : Call the mapping funtion that prints output
+ * Arguments : Table holding atoms and lists of line structs
+ * Returns : Nothing
+ * Notes : None
+ */
 void print_output(Table_T library){
         int first = 1;
         Table_map(library, printer, &first);
 }
 
+/* Purpose : "Apply" function, prints the contents of a list associated with
+ *            an atom given that the list length is greater than one and there
+ *            is more than one occurance of the line
+ * Arguments : void ptr to key (atom), void double ptr to value (list), and
+ *             void ptr to closure (int indicating whether or not it is the
+ *             first line of output)
+ * Returns : Nothing
+ * Notes : None
+ */
 void printer(const void *key, void **value, void *cl){
 
         int *first = cl;
         List_T temp_list = *value;
         temp_list = List_reverse(temp_list);
-     
+
         struct Line *x;
         if (List_length(temp_list) > 1)
-        {    
+        {
                 if (*first == 1){
                         *first = 0;
                 }
@@ -187,15 +220,26 @@ void printer(const void *key, void **value, void *cl){
                         else if (fnl >= 20){
                                 printf("%s %d\n", x->file_name, x->line_num);
                         }
-                        
+
                 }
         }
 }
 
+/* Purpose : Mapping function that frees table contents
+ * Arguments : Table
+ * Returns : None
+ * Notes : None
+ */
 void free_table(Table_T library){
         Table_map(library, freer, NULL);
 }
 
+/* Purpose : Frees the contents of each list in the table
+ * Arguments : void ptr to key (atom), void double ptr to value (list), and
+ *             void ptr to closure
+ * Returns : Nothing
+ * Notes : Atoms cannot be freed from memory 
+ */
 void freer(const void *key, void **value, void *cl){
 
 }
