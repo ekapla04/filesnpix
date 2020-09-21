@@ -1,6 +1,9 @@
-/*Lilianna Houston*/
-/*Comp 40 - Proj 1 - 9/12*/
-/*Brightness Notes File*/
+/* Comp 40 - filesnpix - brightness.c
+ * Lilianna Houston (lhoust01) and Elise Kaplan (ekap04)
+ * September 21, 2020
+ * Purpose: Implementation of brightness.c. Accepts images, converts them
+ *          to grayscale, and computes the average brightness
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,6 +13,12 @@
 void process_image(FILE *image);
 float calc_brightness(Pnmrdr_T *pnm, Pnmrdr_mapdata *data);
 
+/* Purpose : Main driver function for brightness implementation
+ * Arguments : Number of arguments on command line and vector holding pointers
+ *             to each argument
+ * Returns : Integer (0), upon program completion
+ * Notes : None
+ */
 int main (int argc, char *argv[]){
 
     FILE *image;
@@ -30,8 +39,14 @@ int main (int argc, char *argv[]){
 return 0;
 }
 
+/* Purpose : Processes image by converting it to Pnmrdr format and checking
+ *           that it's a valid file
+ * Arguments : File pointer to the image
+ * Returns : Nothing
+ * Notes : Calls helper function calc_brightness
+ */
 void process_image(FILE *image){
-    
+
     Pnmrdr_T pnm = Pnmrdr_new(image);
     Pnmrdr_mapdata data = Pnmrdr_data(pnm);
 
@@ -45,6 +60,11 @@ void process_image(FILE *image){
     printf("%.3f\n", calc_brightness(&pnm, &data));
 }
 
+/* Purpose : Calculates the average brightness of the image
+ * Arguments : The image and its data/information
+ * Returns : Float containing the avg brightness
+ * Notes : None
+ */
 float calc_brightness(Pnmrdr_T *pnm, Pnmrdr_mapdata *data){
 
     float pixel_num = data->width * data->height;
