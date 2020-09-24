@@ -1,0 +1,21 @@
+Comp 40 - filesnpix - README
+Sept. 21st 2020
+
+Lilianna Houston (lhoust01) 
+Elise Kaplan (ekapla04)
+
+Acknowledgements: 
+
+We used office hours frequently. We also used google for syntax and other 
+errors. We ran into some major memory issues and Ben London gets a special 
+shoutout for helping us figure those out.  
+
+Implementation:
+
+To our knowledge, our programs work to the full extent. However, we did not 
+test simlines with large files. The other programs (readaline.c and 
+brightness.c) were thoroughly tested and we didn’t find any issues. We 
+spent approximately 30 hours completing this assignment with the bulk of 
+it on coding. 
+
+Hours spent on this project: Around 30.

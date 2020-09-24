@@ -1,5 +1,5 @@
 /* Comp 40 - filesnpix - brightness.c
- * Lilianna Houston (lhoust01) and Elise Kaplan (ekap04)
+ * Lilianna Houston (lhoust01) and Elise Kaplan (ekapla04)
  * September 21, 2020
  * Purpose: Implementation of brightness.c. Accepts images, converts them
  *          to grayscale, and computes the average brightness
@@ -35,6 +35,7 @@ int main (int argc, char *argv[]){
     }
 
     process_image(image);
+    exit(EXIT_SUCCESS);
 
 return 0;
 }

@@ -1,8 +1,7 @@
 /* Comp 40 - filesnpix - readaline.c
- * Lilianna Houston (lhoust01) and Elise Kaplan (ekap04)
+ * Lilianna Houston (lhoust01) and Elise Kaplan (ekapla04)
  * September 21, 2020
- * Purpose: Implementation of readaline.c. Reads in a line from a file char
- *          by char and returns the number of bytes in the line
+ * Purpose: Implementation of readaline.c. Reads in a line from a file.
  */
 
 #include <stdio.h>
@@ -13,12 +12,12 @@
 
 size_t readaline(FILE *inputfd, char **datapp);
 
-/* Purpose : Reads in a line from a file char by char and returns the
- *           number of bytes in the line
- * Arguments : File pointer and char double ptr
- * Returns : size_t representing number of bytes in the line
- * Notes : If called when there are no more lines to be read, sets *datapp
- *         to null and returns 0
+
+/* Purpose : readaline function that 
+ * Arguments : Number of arguments on command line and vector holding pointers
+ *             to each argument
+ * Returns : Integer (0), upon program completion
+ * Notes : None
  */
 size_t readaline(FILE *inputfd, char **datapp){
         assert(inputfd != NULL);
@@ -29,10 +28,11 @@ size_t readaline(FILE *inputfd, char **datapp){
         int c = 0;
         while(feof(inputfd) == 0){
                 c = fgetc(inputfd);
-                if (feof(inputfd) != 0) {
+                if (feof(inputfd) != 0 && line_loc == 0) {
                         free(line);
                         *datapp = NULL;
                         return 0;
+                        // order depends on new line char
                 }
                 if (c == '\n'){
                         break;
